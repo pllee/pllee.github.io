@@ -1,0 +1,1039 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Demystifying Redux</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<style>
+			.font-small {
+				font-size: 10px !important;
+			}
+
+			.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+				text-transform: none;
+			}
+
+			.reveal pre {
+				box-shadow: none;
+				width: 100%;
+				font-size: 18px;
+			}
+			.reveal pre code {
+				max-height: 500px;
+			}
+		</style>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+                <section>
+    <section>
+    <h2>Demystifying Redux</h2>
+    <ul style="list-style: none; text-align: center;">
+        <li><a href="https://pllee.github.io/demystifying-redux/">https://pllee.github.io/demystifying-redux</a></li>
+        <li><a href="https://github.com/pllee/react-redux">pllee - React Redux</a></li>
+        <li><a href="https://github.com/pllee/redux">pllee - Redux</a></li>
+    </ul>
+    <img src="images/logo.jpg">
+    
+</section>
+<section>
+    <h2>Intro</h2>
+    <ul style="list-style: none; text-align: center;">
+        <li><a href="https://github.com/pllee">pllee - Github</a></li>
+        <li><a href="https://stackoverflow.com/users/531940/pllee">pllee - StackOverflow</a></li>
+        <li><a href="https://www.linkedin.com/in/patrick-lee-13834228/">LinkedIn</a></li>
+        <li><a href="http://velobahncoffee.com/">Velobahn Coffee</a></li>
+        <li>3618 W Pierce St, Milwaukee WI 53215</li>
+    </ul>
+    <img src="images/me.jpeg">
+    
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Goals</h2>
+    <ul>
+        <li class="">I want to break down Redux and show how it works</li>
+        <li>Deep dive into the nomenclature</li>
+        <li>Deep dive into some implementations</li>
+        <li>Connect the dots on how everything fits together</li>
+    </ul>
+    
+</section>
+<section>
+    <h2>Road map</h2>
+    <ol>
+        <li class="">Define what React Redux is</li>
+        <li>Deep dive into Redux</li>
+        <li>Deep dive into React Redux</li>
+        <li>Go over tips and tricks</li>
+    </ol>
+    
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>What is React Redux?</h2>
+    <ul>
+        <li class="">Redux: A framework for managing application state.</li>
+        <li class="">React Redux: A framework that uses Redux to manage state and React to render it.</li>
+    </ul>
+    
+</section>
+<section>
+    <h2>Redux</h2>
+    <ul>
+        <li>Not directly tied to any ui framework but built with UI frameworks in mind.</li>
+        <li>Theoretically can be used with any ui framework e.g Revue</li>
+        <li>Actions, Dispatch, Reducer, Store, Middleware</li>
+    </ul>
+    
+</section>
+<section>
+    <h2>React Redux</h2>
+    <ul>
+        <li>Uses Redux&apos;s hooks to render application state using the React framework.</li>
+        <li>connect, mapStateToProps, mapDispatchToProps, Provider</li>
+    </ul>
+    
+</section>
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Redux Data Flow</h2>
+    <pre>        <code class="hljs" style="font-size: 35px; max-height: 600px">
+dispatch(action) 
+
+&#x2B07;&#xFE0F;
+
+reducer(currentState, action)
+
+&#x2B07;&#xFE0F;
+
+nextState
+        </code>
+     </pre>
+    
+</section>
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Action</h2>
+    <ul>
+        <li class="">Just a single argument that the reducer knows how to handle</li>
+        <li class="">Is nothing really, it is just a practice/concept</li>
+        <li class="">Usually a payload of data with a required type field</li>
+    </ul>
+    <pre>    <code class="hljs" style="font-size: 18px;">
+{type: &apos;ADD_TODO&apos;, name: &apos;writeSlides&apos;, isComplete: false}
+    </code>
+ </pre>
+    
+</section>
+<section>
+    <pre>    <code class="hljs" style="font-size: 18px;">
+const { createStore } = require(&apos;redux&apos;);
+
+const additionReducer = (state = {number: 0, string: &apos;&apos;}, value) =&gt; {
+    const nextState = Object.assign({}, state);
+    const type = typeof value;
+
+    nextState[type] = state[type] + value;
+    
+    return nextState;
+}
+
+const store = createStore(additionReducer);
+const dispatch = store.dispatch.bind(store);
+
+dispatch(1);
+dispatch(&apos;1&apos;);
+dispatch(2);
+dispatch(&apos;2&apos;);
+
+const {number, string} = store.getState();
+alert(`number addition: ${number}  string addition: ${string}`);
+// number addition: 3  string addition: 12
+
+    </code>
+    </pre>
+    
+</section>
+
+    
+</section>
+
+
+<section>
+    <h2>Action Creator</h2>
+<ul>
+    <li class="">A pure function that returns action</li>
+    <li>Not really needed but a good abstraction over how/where actions are used.</li>
+    <li>Removes the logic from the Container about knowing the types and data fields that are supported.</li>
+    <li>With action creators you can control the payload of what the reducer can handle.</li>
+</ul>
+<pre>    <code class="hljs" style="font-size: 18px;">
+(...args) =&gt; payload;
+
+({name, isComplete}) =&gt; ({type: &apos;TODO_ADD&apos;, name, isComplete});
+    </code>
+ </pre>
+
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Reducer</h2>
+    <ul>
+        <li class="">Pure function that takes in the current state and a data payload (action) and returns the next state.</li>
+        <li class="">The only function that can &quot;manipulate&quot; the application state.</li>
+
+        <!-- <li class="">Due to diffing logic the passed in state cannot be manipulated and the returned state must be a separate instance (cloned)</li> -->
+    </ul>
+    <pre>    <code class="hljs">
+(currentState, payload) =&gt; nextState 
+    </code>
+ </pre>
+    
+</section>
+<section>
+    <blockquote>
+        &#x201C;It&apos;s called a reducer because it&apos;s the type of function you would pass to Array.prototype.reduce(reducer, ?initialValue)&#x201D;
+    </blockquote>
+    <ul>
+        <li class="">It could just be called a nextState function</li>
+        <!-- <li class="fragment">🇵🇷</li> -->
+    </ul>
+    
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>combineReducers</h2>
+    <ul>
+        <li class="">Takes an object of keys and reducer fns and creates a single reducer that calls all of the passed in reducers</li>
+        <li> The shape of the state object matches the keys of the passed reducers</li>
+    </ul>
+    <pre>    <code style="font-size: 18px;" class="hljs">
+const reducer = combineReducers({
+    todos: todoReducer,
+    documents: documentsReducer
+});
+
+reducer(undefined, {type:...})
+&gt; {todos: ..., documents ....};
+  
+    </code>
+    
+ </pre>
+</section>
+<section>
+    <h2>Implementation</h2>
+    <pre>            <code style="font-size: 18px;" class="hljs">
+const combineReducers = reducerKeysToReducers =&gt; {
+  return (state = {}, action) =&gt; {
+    Object.keys(reducerKeysToReducers).forEach(key =&gt; {
+      const reducer = reducerKeysToReducers[key];
+      state[key] = reducer(state[key], action);
+    });
+
+    return state;
+  };
+};
+
+export default combineReducers;
+
+            </code>
+            
+         </pre>
+</section>
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Store</h2>
+    <ul>
+        <li class="">Main component of all of Redux</li>
+        <li class="">Stores all of the applications state and controls how it is manipulated</li>
+        <li class="">Mostly hidden from end users.</li>
+        
+    </ul>
+    <pre>    <code style="font-size: 18px;" class="hljs">
+new Store({reducer, preloadedState})
+    </code>
+ </pre>
+</section>
+<section>
+    <h2>Implementation</h2>
+    <pre>            <code style="font-size: 18px;" class="hljs">
+const INIT_ACTION = {type: &apos;@@redux/INIT&apos;}
+
+export default class Store {
+  constructor({ preloadedState , reducer }) {
+    this.state = preloadedState;
+    this.listeners = [];
+
+    this.reducer = reducer;
+    // This actually sets up the store&apos;s default state
+    this.dispatch(INIT_ACTION);
+  }
+
+  getState() {
+    return this.state;
+  }
+
+  /**
+   * Call the one and only reducer with the current state and passed in action.  The state returned by
+   * the reducer will be the current state.
+   */
+  dispatch(action) {
+    const nextState = this.reducer(this.state, action);
+    this.state = nextState;
+    this.listeners.forEach(listener =&gt; listener());
+
+    return action;
+  }
+
+  subscribe(listener) {
+    this.listeners.push(listener);
+    // Return a function that removes the listener
+    return () =&gt; {
+        const listenerIndex = this.listeners.indexOf(listener);
+        if(listenerIndex &gt; -1) {
+            this.listeners.splice(listenerIndex, 1);
+        }  
+    }
+  }
+
+  replaceReducer(reducer) {
+      this.reducer = reducer;
+  }
+}
+            </code>
+         </pre>
+    
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <h2>Dispatch</h2>
+<ul>
+    <li>Nothing magical just a reference to the global store&apos;s dispatch function</li>
+    <li>It is just a good encapsulation over the Store&apos;s reducer</li>
+</ul>
+<pre>            <code class="hljs">
+//very hacky dispatch
+store.state = store.reducer(store.state, action);
+
+            </code>
+         </pre>
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>mapStateToProps</h2>
+    <ul>
+        <li class="">Pure function that gets called when the Store changes</li>
+        <li class="">The results get passed down to the Component as props</li>
+        <li class="">The bridge between the store data and the view layer.</li>
+    </ul>
+    <pre>    <code class="hljs">
+(state, ownProps?) =&gt; componentProps
+
+    </code>
+ </pre>
+    
+</section>
+<section>
+    <h2>Implementation</h2>
+    <ul>
+        <li class="">Change listener from the Redux store is added to recalculate the props based off the current state of the store</li>
+    </ul>
+    <pre>        <code class="hljs">
+this.store.subscribe(() =&gt; {
+    this.forceUpdate();
+});
+
+//...
+
+render() {
+    const stateProps = mapStateToProps(this.store.getState(), this.props);
+    return (
+        &lt;WrappedComponent {...stateProps} /&gt;
+    )
+}
+        </code>
+     </pre>
+    
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>mapDispatchToProps</h2>
+    <ul>
+        <li>A function that gets called with the global store&apos;s dispatch function and the returned result is passed to the Component as props.</li>
+    </ul>
+    <pre>    <code class="hljs">
+(dispatch, ownProps?) =&gt; componentProps
+
+(dispatch) =&gt; ({
+  clearTodos: dispatch(loadTodos([]));  
+})
+    </code>
+ </pre>
+ 
+</section>
+<section>
+        <h2>Implementation</h2>
+        <ul>
+            <li class="">Store the result of the mapDispatchToProps function as dispatch props.</li>
+        </ul>
+    <pre>        <code class="hljs">
+this.dispatchProps = { 
+    ...mapDispatchToProps(store.dispatch), 
+    dispatch: store.dispatch 
+}
+
+render( &lt;Component ...this.dispatchProps&gt;)
+        </code>
+     </pre>
+     
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Connect</h2>
+    <ul>
+        <li>Basically the entire React Redux implementation</li>
+        <li class="">Give a React component access to the store.</li>
+    </ul>
+    <pre>    <code class="hljs">
+connect([mapStateToProps], [mapDispatchToProps], [mergeProps])(Component) =&gt; Container
+
+
+    </code>
+ </pre>
+ 
+</section>
+
+<section>
+    <pre>            <code style="font-size: 18px" class="hljs">
+import { Component, createElement } from &apos;react&apos;;
+import { bindActionCreators } from &apos;redux&apos;;
+import * as PropTypes from &apos;prop-types&apos;;
+
+const defaultMergeProps = (stateProps, dispatchProps, ownProps) =&gt; {
+  return Object.assign({}, ownProps, stateProps, dispatchProps);
+};
+
+export default (mapStateToProps, mapDispatchToProps, mergeProps = defaultMergeProps) =&gt; {
+  return function(WrappedComponent) {
+
+    class Connect extends Component {
+
+      constructor(props, context) {
+        super(props, context);
+        this.store = props.store || context.store;
+        const dispatch = this.store.dispatch.bind(this.store);
+
+        // mapDispatchToProps can be a function or an object that will be bound to dispatch
+        // This end result of calling or binding mapDispatchToProps with dispatch only needs to be done once and is stored on the instance
+        if (typeof mapDispatchToProps === &apos;function&apos;) {
+          this.dispachedProps = mapDispatchToProps(dispatch, props);
+        } else {
+          this.dispachedProps = bindActionCreators(mapDispatchToProps, dispatch) || {};
+        }
+
+        this.dispachedProps.dispatch = dispatch;
+      }
+
+      /**
+       * Render the passed in component with the latest connected properties.
+       * Same as &lt;WrappedComponent {...this.getConnectedProps()}.  Without using jsx.
+       */
+      render() {
+        return createElement(WrappedComponent, this.getConnectedProps());
+      }
+
+      /**
+       * Call mapStateToProps with the store&apos;s state and the connected Container&apos;s &quot;ownProps&quot;.
+       * Return the mergeProps which by default applies the applies the ownProps, stateProps and dispatch props over
+       * each other but can be configured to do anything.
+       */
+      getConnectedProps() {
+        const reduxStateProps = (mapStateToProps &amp;&amp; mapStateToProps(this.store.getState(), this.props));
+        return mergeProps(reduxStateProps, this.dispachedProps, this.props);
+      }
+
+      /**
+       * Subscribe to the store&apos;s change &quot;event&quot;.  For re-render when something has changed.
+       * Start listening right before the initial render because the initial render already has the most up to
+       * date store state. (for all intents and purposes).
+       */
+      componentDidMount() {
+        this.unsubscribe = this.store.subscribe(() =&gt; {
+          this.forceUpdate();
+        });
+      }
+
+      /**
+       * remove change listener when the container is getting deleted from the dom.
+       */
+      componentWillUnmount() {
+        this.unsubscribe();
+        delete this.unsubscribe;
+      }
+    }
+
+    //This is needed for context to work
+    Connect.contextTypes = {
+      store: PropTypes.any
+    };
+
+    return Connect;
+  };
+};
+
+            </code>
+         </pre>
+         
+</section>
+
+<!-- <section>
+    <pre>
+                <code style="font-size: 18px" class="hljs">
+const connectComponent = store =&gt; {
+  (mapStateToProps, mapDispatchToProps, mergeProps = defaultMergeProps) =&gt; {
+    return WrappedComponent =&gt; {
+      class Connect {
+        constructor(props, context) {
+          super(props, context);
+          this.store = props.store || store;
+          //...
+        }
+      }
+    };
+  };
+};
+
+export default store =&gt; {
+  return connectComponent();
+};
+
+                </code>
+             </pre>
+             <aside class="notes">
+                    <ul>
+        <li>Crux of React Redux</li>
+        <li>Give the "Container" access to the store</li>
+        <li>It returns a function which takes a React Component returns a Redux Container</li>
+        <li>Internally uses the store's getState and dispatch methods</li>
+        <li>Computes props from mapStateToProps and mapDispatchToProps</li>
+    </ul>
+                </aside>
+</section>
+
+<section>
+    <pre>
+                <code style="font-size: 18px" class="hljs">
+import { connectNoProvider }  from 'react-redux';
+
+export const connect = connectNoProvider(creatStore({reducer}));
+
+
+//container.jsx
+import { connect } from '../connect';
+
+return connect(mapStateToProps)(&lt;MyComponent/&gt;);
+                </code>
+             </pre>
+             <aside class="notes">
+                    <ul>
+        <li>Crux of React Redux</li>
+        <li>Give the "Container" access to the store</li>
+        <li>It returns a function which takes a React Component returns a Redux Container</li>
+        <li>Internally uses the store's getState and dispatch methods</li>
+        <li>Computes props from mapStateToProps and mapDispatchToProps</li>
+    </ul>
+                </aside>
+</section> -->
+
+
+    
+</section>
+
+
+<section>
+    <h2>Provider</h2>
+<ul>
+    <li class="">Required Component by React Redux to set up React&apos;s magical context to pass in references to the store transparently (in the connect function)</li>
+</ul>
+<pre>    <code class="hljs">
+        &lt;Provider {store} /&gt;
+    </code>
+ </pre>
+
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>
+        thunk
+    </h2>
+    <ul>
+        <li class="">Middleware that handles functions as actions</li>
+        <li class="">The function gets called with a reference to the store&apos;s dispatch and getState Function</li>
+        <li class="">Generally used with async code but can be used synchronously.</li>
+    </ul>
+    <pre>    <code class="hljs">
+({ dispatch, getState }) =&gt; next =&gt; action =&gt; {
+  if (typeof action === &quot;function&quot;) {
+    return action(dispatch, getState, extraArgument);
+  }
+
+  return next(action);
+};
+
+    </code>
+ </pre>
+    
+</section>
+
+<section>
+    <pre>                <code style="font-size: 18px" class="hljs">
+const fetchTodos = (dispatch) =&gt; {
+    fetch(TODO_URL).then((todos) =&gt; {
+        dispatch(loadTodos(todos));
+    })
+}
+
+dispatch(fetchTodos());
+                </code>
+             </pre>
+    
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <section>Setup
+
+    <pre>            <code class="hljs">
+//reducer is created with combineReducers
+const reducer = combineReducers({todos: todoReducer});
+&#x2B07;&#xFE0F;
+
+//Create store helper method is used to create the store.
+createStore(reducer);
+&#x2B07;&#xFE0F;
+
+//The Store is passed in to the provider
+&lt;Provider store = {store} /&gt;
+&#x2B07;&#xFE0F;
+
+//The Provider Sits at the root of the application to set up connect&apos;s store context
+render(document.body, &lt;Provider&gt; &lt;App/&gt; &lt;/Provider&gt;)
+&#x2B07;&#xFE0F;
+
+//connect is used to define a container
+// connect has a reference to the providers store context and uses the store 
+// to set up mapStateToProps and mapDispatchToProps
+this.store = this.context.store
+            </code>
+         </pre>
+    
+</section>
+
+<section>Action dispatch data flow
+
+    <pre>        <code class="hljs">
+//Action is created
+actionCreator(arg1, arg2)
+&#x2B07;&#xFE0F;
+//Dispatch is called with the action
+dispatch(action)
+&#x2B07;&#xFE0F;
+//Is store.dispatch
+store.dispatch(action) 
+&#x2B07;&#xFE0F;
+
+//The store&apos;s reducer is called with the passed in action to determine the next state
+this.state = this.reducer(this.state, action)
+callChangeListeners();
+&#x2B07;&#xFE0F;
+
+//Change listener is called from the store&apos;s dispatch method
+this.store.subScribe(() =&gt; {
+  this.forceUpdate();
+});
+
+// Container re-renders its component with the latest store state
+render() {
+  &lt;Component {...mapStateToProps(this.store.getState())}
+}
+
+
+
+        </code>
+     </pre>
+    
+</section>
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Testing Reducers</h2>
+    <ul>
+        <li class="">Reducers are pure functions so they are easy to test.</li>
+        <li class="">It is a decent practice use actionCreators in reducer tests</li>
+    </ul>
+    
+</section>
+<section>
+    <pre>            <code class="hljs">
+const defaultState = {
+  todos: [],
+  initialStatus: &apos;ACTIVE&apos;
+};
+
+const reducer = (state = defaultState, action) =&gt; {
+  switch (action.type) {
+    case &apos;ADD_TODO&apos;:
+      const { initialStatus } = state;
+      return {
+        ...state,
+        todos: [...state.todos, { name: action.name, status: initialStatus }]
+      };
+    case &apos;TOGGLE_INITIAL_STATUS&apos;:
+      return { ...state, initialState, initialStatus: action.status };
+    case &apos;CLEAR&apos;:
+      return { ...state, todos: [] };
+    default: 
+      return state;
+  }
+};
+
+            </code>
+         </pre>
+         
+</section>
+<section>
+    <pre>            <code class="hljs">
+it(&quot;defaults to active status and preserves the order&quot;, () =&gt; {
+  let state = reducer(undefined, addTodo(name1));
+  //mimic how a reducer is actually used
+  state = reducer(state, addTodo(name2));
+
+  expect(state.todos).toEqual([
+    { name: name1, status: &quot;ACTIVE&quot; },
+    { name: name2, status: &quot;ACTIVE&quot; }
+  ]);
+});
+
+            </code>
+         </pre>
+         
+</section>
+<section>
+    <pre>                <code class="hljs">
+it(&apos;clears&apos;, () =&gt; {
+  let state = reducer(undefined, { TYPE: &apos;@@redux/INIT&apos; });
+
+  state = reducer(state, addTodo(name));
+  state = reducer(state, clear());
+
+  expect(state.todos).toEqual([]);
+});
+
+                </code>
+             </pre>
+             
+</section>
+<section>
+    <pre>                    <code class="hljs">
+const getDefaultState = state =&gt; {
+  let defaultState = reducer(undefined, { type: &apos;@@redux/INIT&apos; });
+  return Object.assign({}, defaultState, state);
+};
+
+                    </code>
+                 </pre>
+                 
+</section>
+
+<section>
+    <pre>                        <code class="hljs">
+it(&apos;clears&apos;, () =&gt; {
+    let state = getDefaultState({todos: [{name: &apos;dont care&apos;, status: &apos;dont care&apos;}]})
+    
+    state = reducer(state, clear());
+  
+    expect(state.todos).toEqual([]);
+  });
+  
+                        </code>
+                     </pre>
+
+    <pre>                            <code class="hljs">
+it(&apos;clears&apos;, () =&gt; {
+  let state = reducer(undefined, { TYPE: &apos;@@redux/INIT&apos; });
+
+  state = reducer(state, addTodo(name));
+  state = reducer(state, clear());
+
+  expect(state.todos).toEqual([]);
+});
+
+                            </code>
+                         </pre>
+                         
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <h2>Actions constants</h2>
+<ul>
+    <li>Just stored in the spot that cares about them the most.</li>
+    <li>Easy to use inside of the action creators code.</li>
+</ul>
+<pre>            <code class="hljs">
+export const TYPES = {
+  ADD_TODO: &apos;ADD_TODO&apos;,
+  CLEAR: &apos;CLEAR&apos;,
+  TOGGLE_INITIAL_STATUS: &apos;TOGGLE_INITIAL_STATUS&apos;
+};
+
+export const addTodo = name =&gt; {
+  return {
+    type: TYPES.ADD_TODO,
+    name
+  };
+};
+
+export const clear = () =&gt; {
+  return {
+    type: TYPES.CLEAR
+  };
+};
+
+
+export const toggleInitialStatus = status =&gt; {
+  return {
+    type: TYPES.TOGGLE_INITIAL_STATUS,
+    status
+  };
+};
+
+
+            </code>
+         </pre>
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Removing Switch statements</h2>
+    <ul>
+        <li class="">When your reducer is a switch statement it is one big function</li>
+        <li class="">It is nice to think of each action separately and segregate the scope of variables</li>
+    </ul>
+    
+</section>
+<section>
+    <pre>                <code class="hljs">
+const defaultState = {
+  todos: [],
+  initialStatus: &apos;ACTIVE&apos;
+};
+
+const reducer = (state = defaultState, action) =&gt; {
+  switch (action.type) {
+    case &apos;ADD_TODO&apos;:
+      const { initialStatus } = state;
+      return {
+        ...state,
+        todos: [...state.todos, { name: action.name, status: initialStatus }]
+      };
+    case &apos;TOGGLE_INITIAL_STATUS&apos;:
+      return { ...state, initialState, initialStatus: action.status };
+    case &apos;CLEAR&apos;:
+      return { ...state, todos: [] };
+    default:
+      return state;
+  }
+};
+
+                </code>
+             </pre>
+             
+</section>
+<section>
+    <pre>                    <code class="hljs">
+import { TYPES } from &apos;../actions/todo&apos;;
+
+const addTodo = ({ initialStatus, todos }, { name }) =&gt; {
+  return { todos: [...todos, { name, status: initialStatus }] };
+};
+
+const clear = () =&gt; {
+  return { todos: [] };
+};
+
+const toggleInitialStatus = (state, { status }) =&gt; {
+  return { initialStatus: status }; 
+};
+
+const typeHandlers = {
+  [TYPES.ADD_TODO]: addTodo,
+  [TYPES.CLEAR]: clear,
+  [TYPES.TOGGLE_INITIAL_STATUS]: toggleInitialStatus
+};
+
+const reducer = (defaultState, action) =&gt; {
+  const handler = typeHandlers[action.type];
+  if (handler) {
+    const handlerData = handler(state, action);
+    return { ...state, ...handlerData };
+  }
+
+  return state;
+};
+
+                    </code>
+                 </pre>
+                 
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Conclusion</h2>
+    <ul>
+        <li>Redux is not magical</li>
+        <li>2 distinct parts Redux and React Redux</li>
+        <li>Redux - 84 SLOC</li>
+        <li>React Redux - 62 SLOC</li>
+    </ul>
+    
+</section>
+
+
+    
+</section>
+
+
+<section>
+    <section>
+    <h2>Questions/Comments?</h2>
+    
+</section>
+
+
+    
+</section>
+
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				center: false,
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
